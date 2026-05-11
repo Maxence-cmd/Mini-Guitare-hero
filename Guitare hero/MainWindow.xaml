@@ -1,0 +1,24 @@
+﻿<Window x:Class="Guitare_hero.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Menu" Width="400" Height="350">
+
+    <Grid Background="#111">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Text="Choisis une difficulté"
+                       Foreground="White"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Margin="0,0,0,30"/>
+
+            <Button Content="Facile" Width="200" Height="45" Margin="0,5"
+                    Click="Easy_Click"/>
+
+            <Button Content="Moyen" Width="200" Height="45" Margin="0,5"
+                    Click="Medium_Click"/>
+
+            <Button Content="Difficile" Width="200" Height="45" Margin="0,5"
+                    Click="Hard_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
