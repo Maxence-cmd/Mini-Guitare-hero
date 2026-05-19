@@ -6,14 +6,12 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using System.Windows.Media;
 
 namespace Guitare_hero
 {
     public partial class GameWindow : Window
     {
-        DispatcherTimer gameTimer = new();
-        DateTime lastFrameTime = DateTime.Now;
+        // ── using System.Windows.Media en double supprimé ──
         DispatcherTimer spawnTimer = new();
         Random random = new();
 
@@ -23,19 +21,28 @@ namespace Guitare_hero
         double speed = 5;
         int laneCount = 5;
 
-        double[] lanes = { 130, 260, 390, 520, 650 };
-        Key[] keys = { Key.D, Key.F, Key.G, Key.J, Key.K };
+        // ── Positions des couloirs adaptées au Canvas de 480px centré ──
+        // Canvas centré sur 480px → couloirs espacés de 96px, départ à 48
+        double[] lanes = { 48, 144, 240, 336, 432 };
 
+        // ── Touches corrigées pour correspondre aux boutons XAML (A Z E R T) ──
+        Key[] keys = { Key.A, Key.Z, Key.E, Key.R, Key.T };
+
+        // ── Couleurs harmonisées avec le thème néon du XAML ──
         Brush[] colors =
         {
-            Brushes.Red,
-            Brushes.Yellow,
-            Brushes.Green,
-            Brushes.Blue,
-            Brushes.Purple
+            new SolidColorBrush(Color.FromRgb(0,   255, 136)), // Vert
+            new SolidColorBrush(Color.FromRgb(255,  45, 120)), // Rouge/Rose
+            new SolidColorBrush(Color.FromRgb(255, 230,   0)), // Jaune
+            new SolidColorBrush(Color.FromRgb(0,   212, 255)), // Bleu
+            new SolidColorBrush(Color.FromRgb(255, 140,   0))  // Orange
         };
 
-        double hitLineY = 680;
+        // ── hitLineY adapté à la nouvelle hauteur de la zone de jeu ──
+        // Fenêtre 850 - barre titre 52 - zone touches 110 = 688 de zone jeu
+        // On place la ligne à 90% de la zone de jeu
+        double hitLineY = 580;
+        DateTime lastFrameTime = DateTime.Now;
         string difficulty;
 
         public GameWindow(string selectedDifficulty)
@@ -49,6 +56,7 @@ namespace Guitare_hero
             ApplyDifficulty(difficulty);
             DrawLanes();
 
+            // ── CompositionTarget.Rendering pour la boucle de jeu (inchangé) ──
             CompositionTarget.Rendering += GameLoop;
 
             spawnTimer.Tick += SpawnNote;
@@ -57,50 +65,62 @@ namespace Guitare_hero
             Focus();
         }
 
-        void ApplyDifficulty(string difficulty)
+        void ApplyDifficulty(string diff)
         {
-            if (difficulty == "Facile")
+            if (diff == "Facile")
             {
                 speed = 4;
                 spawnTimer.Interval = TimeSpan.FromMilliseconds(1000);
             }
-            else if (difficulty == "Moyen")
+            else if (diff == "Moyen")
             {
                 speed = 6;
                 spawnTimer.Interval = TimeSpan.FromMilliseconds(700);
             }
-            else if (difficulty == "Difficile")
+            else if (diff == "Difficile")
             {
                 speed = 9;
                 spawnTimer.Interval = TimeSpan.FromMilliseconds(400);
+            }
+            else if (diff == "Expert")
+            {
+                speed = 13;
+                spawnTimer.Interval = TimeSpan.FromMilliseconds(250);
             }
         }
 
         void DrawLanes()
         {
+            double laneWidth = 480.0 / laneCount; // 96px par couloir
+
             for (int i = 0; i < laneCount; i++)
             {
-                Rectangle lane = new()
+                // ── Séparateurs entre couloirs ──
+                if (i > 0)
                 {
-                    Width = 90,
-                    Height = 850,
-                    Fill = Brushes.Transparent,
-                    Stroke = Brushes.Gray,
-                    StrokeThickness = 2
-                };
+                    Rectangle sep = new()
+                    {
+                        Width = 1,
+                        Height = GameCanvas.ActualHeight > 0 ? GameCanvas.ActualHeight : 700,
+                        Fill = new SolidColorBrush(Color.FromArgb(80, 100, 100, 180))
+                    };
+                    Canvas.SetLeft(sep, laneWidth * i);
+                    Canvas.SetTop(sep, 0);
+                    GameCanvas.Children.Add(sep);
+                }
 
-                Canvas.SetLeft(lane, lanes[i] - 45);
-                Canvas.SetTop(lane, 0);
-                GameCanvas.Children.Add(lane);
-
+                // ── Zone de frappe en bas de chaque couloir ──
                 Rectangle hitZone = new()
                 {
-                    Width = 90,
-                    Height = 25,
-                    Fill = colors[i]
+                    Width = laneWidth - 4,
+                    Height = 20,
+                    Fill = colors[i],
+                    Opacity = 0.4,
+                    RadiusX = 6,
+                    RadiusY = 6
                 };
 
-                Canvas.SetLeft(hitZone, lanes[i] - 45);
+                Canvas.SetLeft(hitZone, laneWidth * i + 2);
                 Canvas.SetTop(hitZone, hitLineY);
                 GameCanvas.Children.Add(hitZone);
             }
@@ -109,15 +129,26 @@ namespace Guitare_hero
         void SpawnNote(object? sender, EventArgs e)
         {
             int lane = random.Next(0, laneCount);
+            double laneWidth = 480.0 / laneCount;
+            double noteSize = 55;
 
             Ellipse ellipse = new()
             {
-                Width = 55,
-                Height = 55,
-                Fill = colors[lane]
+                Width = noteSize,
+                Height = noteSize,
+                Fill = colors[lane],
+                // ── Effet de halo sur les notes ──
+                Effect = new System.Windows.Media.Effects.DropShadowEffect
+                {
+                    Color = ((SolidColorBrush)colors[lane]).Color,
+                    BlurRadius = 16,
+                    ShadowDepth = 0,
+                    Opacity = 0.9
+                }
             };
 
-            Canvas.SetLeft(ellipse, lanes[lane] - 27);
+            double x = laneWidth * lane + (laneWidth - noteSize) / 2;
+            Canvas.SetLeft(ellipse, x);
             Canvas.SetTop(ellipse, -60);
 
             GameCanvas.Children.Add(ellipse);
@@ -136,18 +167,23 @@ namespace Guitare_hero
             double deltaTime = (now - lastFrameTime).TotalSeconds;
             lastFrameTime = now;
 
+            // ── Clamp deltaTime pour éviter les sauts si la fenêtre est gelée ──
+            if (deltaTime > 0.1) deltaTime = 0.1;
+
             for (int i = notes.Count - 1; i >= 0; i--)
             {
                 notes[i].Y += speed * 60 * deltaTime;
                 Canvas.SetTop(notes[i].Shape, notes[i].Y);
 
-                if (notes[i].Y > 850)
+                // ── Hauteur de sortie adaptée à la zone de jeu ──
+                if (notes[i].Y > hitLineY + 80)
                 {
                     GameCanvas.Children.Remove(notes[i].Shape);
                     notes.RemoveAt(i);
 
                     score -= 50;
-                    ScoreText.Text = $"Score : {score}";
+                    if (score < 0) score = 0;
+                    ScoreText.Text = $"{score}";
                 }
             }
         }
@@ -175,7 +211,7 @@ namespace Guitare_hero
                     note.Y < hitLineY + 45)
                 {
                     score += 100;
-                    ScoreText.Text = $"Score : {score}";
+                    ScoreText.Text = $"{score}";
 
                     GameCanvas.Children.Remove(note.Shape);
                     notes.RemoveAt(i);
@@ -183,8 +219,22 @@ namespace Guitare_hero
                 }
             }
 
+            // Mauvaise touche
             score -= 25;
-            ScoreText.Text = $"Score : {score}";
+            if (score < 0) score = 0;
+            ScoreText.Text = $"{score}";
+        }
+
+        // ── Handlers fenêtre ──
+        private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
+
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 

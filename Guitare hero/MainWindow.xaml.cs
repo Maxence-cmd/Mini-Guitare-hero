@@ -43,5 +43,27 @@ namespace Guitare_hero
             game.Show();
             Close();
         }
+
+        private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
+
+        // Ferme la fenêtre
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        // Sélection des musiques
+        private void Song1_Click(object sender, MouseButtonEventArgs e) { /* Ta logique */ }
+        private void Song2_Click(object sender, MouseButtonEventArgs e) { /* Ta logique */ }
+        private void Song3_Click(object sender, MouseButtonEventArgs e) { /* Ta logique */ }
+        private void Song4_Click(object sender, MouseButtonEventArgs e) { /* Ta logique */ }
+
+        // Niveau Expert (en plus de Easy/Medium/Hard déjà existants)
+        private void Expert_Click(object sender, RoutedEventArgs e) { /* Ta logique */ }
     }
+
 }

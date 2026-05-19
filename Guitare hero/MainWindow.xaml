@@ -1,24 +1,479 @@
 ﻿<Window x:Class="Guitare_hero.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Menu" Width="400" Height="350">
+        Title="Guitar Hero" Width="900" Height="600"
+        WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize">
 
-    <Grid Background="#111">
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Text="Choisis une difficulté"
-                       Foreground="White"
-                       FontSize="28"
-                       FontWeight="Bold"
-                       Margin="0,0,0,30"/>
+    <Window.Resources>
+        <!-- Couleurs néon -->
+        <SolidColorBrush x:Key="NeonPink"    Color="#FF2D78"/>
+        <SolidColorBrush x:Key="NeonBlue"    Color="#00D4FF"/>
+        <SolidColorBrush x:Key="NeonYellow"  Color="#FFE600"/>
+        <SolidColorBrush x:Key="DarkBg"      Color="#0A0A12"/>
+        <SolidColorBrush x:Key="PanelBg"     Color="#12121F"/>
+        <SolidColorBrush x:Key="CardBg"      Color="#1A1A2E"/>
+        <SolidColorBrush x:Key="CardHover"   Color="#22223A"/>
+        <SolidColorBrush x:Key="TextMain"    Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="TextMuted"   Color="#7A7A9A"/>
 
-            <Button Content="Facile" Width="200" Height="45" Margin="0,5"
-                    Click="Easy_Click"/>
+        <!-- Style bouton difficulté -->
+        <Style x:Key="DiffButton" TargetType="Button">
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="0,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                BorderThickness="1.5"
+                                BorderBrush="{StaticResource NeonBlue}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#1A3A4A"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource NeonPink}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#2A1A3A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-            <Button Content="Moyen" Width="200" Height="45" Margin="0,5"
-                    Click="Medium_Click"/>
+        <!-- Style carte de musique -->
+        <Style x:Key="SongCard" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBg}"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Margin" Value="0,5"/>
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#2A2A4A"/>
+        </Style>
 
-            <Button Content="Difficile" Width="200" Height="45" Margin="0,5"
-                    Click="Hard_Click"/>
-        </StackPanel>
-    </Grid>
+        <!-- Style section titre -->
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMuted}"/>
+
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <!-- Style score row -->
+        <Style x:Key="ScoreRow" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource CardBg}"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Margin" Value="0,4"/>
+            <Setter Property="Padding" Value="12,8"/>
+        </Style>
+    </Window.Resources>
+
+    <!-- Fond principal avec dégradé -->
+    <Border CornerRadius="16">
+        <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#0A0A12" Offset="0"/>
+                <GradientStop Color="#0D0D20" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.Background>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="64"/>
+                <!-- Barre de titre -->
+                <RowDefinition Height="*"/>
+                <!-- Contenu -->
+            </Grid.RowDefinitions>
+
+            <!-- ══════ BARRE DE TITRE ══════ -->
+            <Border Grid.Row="0" CornerRadius="16,16,0,0"
+                    MouseLeftButtonDown="TitleBar_MouseDown">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#1A0A2E" Offset="0"/>
+                        <GradientStop Color="#0A1A2E" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Grid Margin="20,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <!-- Icône guitare -->
+                        <TextBlock Text="🎸" FontSize="28" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="GUITAR HERO"
+                                       Foreground="{StaticResource NeonPink}"
+                                       FontSize="20" FontWeight="Black"/>
+                            <TextBlock Text="MENU PRINCIPAL"
+                                       Foreground="{StaticResource TextMuted}"
+                                       FontSize="10" FontWeight="Bold"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <!-- Bouton fermer -->
+                    <Button Content="✕" HorizontalAlignment="Right"
+                            Width="32" Height="32"
+                            Background="Transparent"
+                            Foreground="{StaticResource TextMuted}"
+                            BorderThickness="0"
+                            FontSize="16"
+                            Click="Close_Click"
+                            Cursor="Hand"/>
+                </Grid>
+            </Border>
+
+            <!-- ══════ CONTENU PRINCIPAL ══════ -->
+            <Grid Grid.Row="1" Margin="20,16,20,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <!-- Sélection musiques -->
+                    <ColumnDefinition Width="16"/>
+                    <!-- Séparateur -->
+                    <ColumnDefinition Width="260"/>
+                    <!-- Difficulté + Scores -->
+                </Grid.ColumnDefinitions>
+
+                <!-- ════ COLONNE GAUCHE : SÉLECTION MUSIQUES ════ -->
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Text="▶  SÉLECTION DES MORCEAUX"
+                               Style="{StaticResource SectionTitle}"/>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+
+                            <!-- Carte musique 1 -->
+                            <Border Style="{StaticResource SongCard}"
+                                    MouseLeftButtonDown="Song1_Click">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#FF2D78" BlurRadius="0" ShadowDepth="0" Opacity="0"/>
+                                </Border.Effect>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Through the Fire and Flames"
+                                                   Foreground="White" FontSize="14" FontWeight="Bold"/>
+                                        <TextBlock Text="DragonForce  •  5:53"
+                                                   Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,2,0,6"/>
+                                        <!-- Étoiles difficulté -->
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="★" Foreground="{StaticResource NeonPink}" FontSize="14"/>
+                                            <TextBlock Text="★" Foreground="{StaticResource NeonPink}" FontSize="14"/>
+                                            <TextBlock Text="★" Foreground="{StaticResource NeonPink}" FontSize="14"/>
+                                            <TextBlock Text="★" Foreground="{StaticResource NeonPink}" FontSize="14"/>
+                                            <TextBlock Text="★" Foreground="{StaticResource NeonPink}" FontSize="14"/>
+                                            <TextBlock Text="  LÉGENDAIRE" Foreground="{StaticResource NeonPink}"
+                                                       FontSize="9" FontWeight="Bold" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <Border Grid.Column="1" Width="40" Height="40"
+                                            CornerRadius="8" VerticalAlignment="Center" Margin="8,0,0,0">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="#3A0A1A" Offset="0"/>
+                                                <GradientStop Color="#1A0A2E" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <TextBlock Text="🎵" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <!-- Carte musique 2 -->
+                            <Border Style="{StaticResource SongCard}"
+                                    MouseLeftButtonDown="Song2_Click">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Sweet Child O' Mine"
+                                                   Foreground="White" FontSize="14" FontWeight="Bold"/>
+                                        <TextBlock Text="Guns N' Roses  •  5:56"
+                                                   Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,2,0,6"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="★" Foreground="{StaticResource NeonYellow}" FontSize="14"/>
+                                            <TextBlock Text="★" Foreground="{StaticResource NeonYellow}" FontSize="14"/>
+                                            <TextBlock Text="★" Foreground="{StaticResource NeonYellow}" FontSize="14"/>
+                                            <TextBlock Text="★" Foreground="{StaticResource NeonYellow}" FontSize="14"/>
+                                            <TextBlock Text="☆" Foreground="#3A3A5A" FontSize="14"/>
+                                            <TextBlock Text="  DIFFICILE" Foreground="{StaticResource NeonYellow}"
+                                                       FontSize="9" FontWeight="Bold" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <Border Grid.Column="1" Width="40" Height="40"
+                                            CornerRadius="8" VerticalAlignment="Center" Margin="8,0,0,0">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="#2A2A0A" Offset="0"/>
+                                                <GradientStop Color="#1A1A0A" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <TextBlock Text="🎵" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <!-- Carte musique 3 -->
+                            <Border Style="{StaticResource SongCard}"
+                                    MouseLeftButtonDown="Song3_Click">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Smoke on the Water"
+                                                   Foreground="White" FontSize="14" FontWeight="Bold"/>
+                                        <TextBlock Text="Deep Purple  •  5:40"
+                                                   Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,2,0,6"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="★" Foreground="{StaticResource NeonBlue}" FontSize="14"/>
+                                            <TextBlock Text="★" Foreground="{StaticResource NeonBlue}" FontSize="14"/>
+                                            <TextBlock Text="★" Foreground="{StaticResource NeonBlue}" FontSize="14"/>
+                                            <TextBlock Text="☆" Foreground="#3A3A5A" FontSize="14"/>
+                                            <TextBlock Text="☆" Foreground="#3A3A5A" FontSize="14"/>
+                                            <TextBlock Text="  MOYEN" Foreground="{StaticResource NeonBlue}"
+                                                       FontSize="9" FontWeight="Bold" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <Border Grid.Column="1" Width="40" Height="40"
+                                            CornerRadius="8" VerticalAlignment="Center" Margin="8,0,0,0">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="#0A1A3A" Offset="0"/>
+                                                <GradientStop Color="#0A0A2A" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <TextBlock Text="🎵" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <!-- Carte musique 4 -->
+                            <Border Style="{StaticResource SongCard}"
+                                    MouseLeftButtonDown="Song4_Click">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Seven Nation Army"
+                                                   Foreground="White" FontSize="14" FontWeight="Bold"/>
+                                        <TextBlock Text="The White Stripes  •  3:51"
+                                                   Foreground="{StaticResource TextMuted}" FontSize="11" Margin="0,2,0,6"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="★" Foreground="#00FF88" FontSize="14"/>
+                                            <TextBlock Text="★" Foreground="#00FF88" FontSize="14"/>
+                                            <TextBlock Text="☆" Foreground="#3A3A5A" FontSize="14"/>
+                                            <TextBlock Text="☆" Foreground="#3A3A5A" FontSize="14"/>
+                                            <TextBlock Text="☆" Foreground="#3A3A5A" FontSize="14"/>
+                                            <TextBlock Text="  FACILE" Foreground="#00FF88"
+                                                       FontSize="9" FontWeight="Bold" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <Border Grid.Column="1" Width="40" Height="40"
+                                            CornerRadius="8" VerticalAlignment="Center" Margin="8,0,0,0">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="#0A2A1A" Offset="0"/>
+                                                <GradientStop Color="#0A1A0A" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <TextBlock Text="🎵" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+
+                <!-- ════ SÉPARATEUR VERTICAL NÉON ════ -->
+                <Border Grid.Column="1" Width="1" Margin="0,8">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="Transparent" Offset="0"/>
+                            <GradientStop Color="#FF2D78" Offset="0.5"/>
+                            <GradientStop Color="Transparent" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+
+                <!-- ════ COLONNE DROITE : DIFFICULTÉ + SCORES ════ -->
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <!-- Difficulté -->
+                        <RowDefinition Height="16"/>
+                        <RowDefinition Height="*"/>
+                        <!-- Scores -->
+                    </Grid.RowDefinitions>
+
+                    <!-- ── BLOC DIFFICULTÉ ── -->
+                    <StackPanel Grid.Row="0">
+                        <TextBlock Text="⚡  NIVEAU DE DIFFICULTÉ"
+                                   Style="{StaticResource SectionTitle}"/>
+
+                        <Button Content="🟢  FACILE"
+                                Style="{StaticResource DiffButton}"
+                                Background="#0D2A1A"
+                                Click="Easy_Click">
+                            <Button.BorderBrush>
+                                <SolidColorBrush Color="#00FF88"/>
+                            </Button.BorderBrush>
+                            <Button.Foreground>
+                                <SolidColorBrush Color="#00FF88"/>
+                            </Button.Foreground>
+                        </Button>
+
+                        <Button Content="🔵  MOYEN"
+                                Style="{StaticResource DiffButton}"
+                                Background="#0A1A2E"
+                                Click="Medium_Click">
+                            <Button.BorderBrush>
+                                <SolidColorBrush Color="#00D4FF"/>
+                            </Button.BorderBrush>
+                            <Button.Foreground>
+                                <SolidColorBrush Color="#00D4FF"/>
+                            </Button.Foreground>
+                        </Button>
+
+                        <Button Content="🟡  DIFFICILE"
+                                Style="{StaticResource DiffButton}"
+                                Background="#2A2A0A"
+                                Click="Hard_Click">
+                            <Button.BorderBrush>
+                                <SolidColorBrush Color="#FFE600"/>
+                            </Button.BorderBrush>
+                            <Button.Foreground>
+                                <SolidColorBrush Color="#FFE600"/>
+                            </Button.Foreground>
+                        </Button>
+
+                        <Button Content="🔴  EXPERT"
+                                Style="{StaticResource DiffButton}"
+                                Background="#2A0A1A"
+                                Click="Expert_Click">
+                            <Button.BorderBrush>
+                                <SolidColorBrush Color="#FF2D78"/>
+                            </Button.BorderBrush>
+                            <Button.Foreground>
+                                <SolidColorBrush Color="#FF2D78"/>
+                            </Button.Foreground>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- ── BLOC TABLEAU DES SCORES ── -->
+                    <StackPanel Grid.Row="2">
+                        <TextBlock Text="🏆  MEILLEURS SCORES"
+                                   Style="{StaticResource SectionTitle}"/>
+
+                        <!-- En-tête -->
+                        <Grid Margin="12,0,12,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="24"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="#" Foreground="{StaticResource TextMuted}" FontSize="10" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="1" Text="JOUEUR" Foreground="{StaticResource TextMuted}" FontSize="10" FontWeight="Bold"/>
+                            <TextBlock Grid.Column="2" Text="SCORE" Foreground="{StaticResource TextMuted}" FontSize="10" FontWeight="Bold"/>
+                        </Grid>
+
+                        <!-- Ligne 1 -->
+                        <Border Style="{StaticResource ScoreRow}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="1" Foreground="{StaticResource NeonYellow}" FontWeight="Bold" FontSize="13"/>
+                                <TextBlock Grid.Column="1" Text="ROCKSTAR_99" Foreground="White" FontSize="12"/>
+                                <TextBlock Grid.Column="2" Text="148 250" Foreground="{StaticResource NeonYellow}" FontWeight="Bold" FontSize="12"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Ligne 2 -->
+                        <Border Style="{StaticResource ScoreRow}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="2" Foreground="{StaticResource TextMuted}" FontWeight="Bold" FontSize="13"/>
+                                <TextBlock Grid.Column="1" Text="AXE_MASTER" Foreground="White" FontSize="12"/>
+                                <TextBlock Grid.Column="2" Text="132 800" Foreground="{StaticResource NeonBlue}" FontWeight="Bold" FontSize="12"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Ligne 3 -->
+                        <Border Style="{StaticResource ScoreRow}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="3" Foreground="{StaticResource TextMuted}" FontWeight="Bold" FontSize="13"/>
+                                <TextBlock Grid.Column="1" Text="SHRED_KING" Foreground="White" FontSize="12"/>
+                                <TextBlock Grid.Column="2" Text="117 500" Foreground="{StaticResource NeonPink}" FontWeight="Bold" FontSize="12"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Ligne 4 -->
+                        <Border Style="{StaticResource ScoreRow}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="4" Foreground="{StaticResource TextMuted}" FontWeight="Bold" FontSize="13"/>
+                                <TextBlock Grid.Column="1" Text="SOLO_HERO" Foreground="White" FontSize="12"/>
+                                <TextBlock Grid.Column="2" Text="98 300" Foreground="{StaticResource TextMuted}" FontWeight="Bold" FontSize="12"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Ligne 5 -->
+                        <Border Style="{StaticResource ScoreRow}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="24"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="5" Foreground="{StaticResource TextMuted}" FontWeight="Bold" FontSize="13"/>
+                                <TextBlock Grid.Column="1" Text="RIFF_LORD" Foreground="White" FontSize="12"/>
+                                <TextBlock Grid.Column="2" Text="87 150" Foreground="{StaticResource TextMuted}" FontWeight="Bold" FontSize="12"/>
+                            </Grid>
+                        </Border>
+
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
 </Window>
