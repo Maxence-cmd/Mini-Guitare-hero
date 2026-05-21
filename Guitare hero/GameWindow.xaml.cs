@@ -6,11 +6,13 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.IO.Ports;
 
 namespace Guitare_hero
 {
     public partial class GameWindow : Window
     {
+        private System.IO.Ports.SerialPort arduino;
         DispatcherTimer spawnTimer = new();
         Random random = new();
 
@@ -67,8 +69,23 @@ namespace Guitare_hero
 
             spawnTimer.Tick += SpawnNote;
             spawnTimer.Start();
-
+            arduino = new SerialPort("COM6", 9600);
+            arduino.DataReceived += Arduino_DataReceived;
+            arduino.Open();
             Focus();
+        }
+        private void Arduino_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            string data = arduino.ReadLine().Trim();
+
+            Dispatcher.Invoke(() =>
+            {
+                if (data == "A") CheckHit(0); // Vert
+                if (data == "Z") CheckHit(1); // Rouge
+                if (data == "E") CheckHit(2); // Jaune
+                if (data == "R") CheckHit(3); // Bleu
+                if (data == "T") CheckHit(4); // Orange
+            });
         }
 
         void ApplyDifficulty(string diff)
@@ -240,6 +257,9 @@ namespace Guitare_hero
 
         private void Close_Click(object sender, RoutedEventArgs e)
         {
+            if (arduino != null && arduino.IsOpen)
+                arduino.Close();
+
             this.Close();
         }
     }
