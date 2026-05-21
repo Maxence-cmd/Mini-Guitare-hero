@@ -9,4 +9,26 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Son\alexgrohl-motivation-sport-rock-trailer-478796.mp3" />
+    <None Remove="Son\fassounds-escape-your-love-upbeat-fashion-pop-dance-412230.mp3" />
+    <None Remove="Son\nastelbom-rock-501708.mp3" />
+    <None Remove="Son\paulyudin-rock-490391.mp3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Son\alexgrohl-motivation-sport-rock-trailer-478796.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Son\fassounds-escape-your-love-upbeat-fashion-pop-dance-412230.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Son\nastelbom-rock-501708.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Son\paulyudin-rock-490391.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

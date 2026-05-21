@@ -11,12 +11,12 @@ namespace Guitare_hero
 {
     public partial class GameWindow : Window
     {
-        // ── using System.Windows.Media en double supprimé ──
         DispatcherTimer spawnTimer = new();
         Random random = new();
 
         List<Note> notes = new();
-
+        private MediaPlayer player = new MediaPlayer();
+        private string musicPath;
         int score = 0;
         double speed = 5;
         int laneCount = 5;
@@ -45,17 +45,23 @@ namespace Guitare_hero
         DateTime lastFrameTime = DateTime.Now;
         string difficulty;
 
-        public GameWindow(string selectedDifficulty)
+        public GameWindow(string selectedDifficulty, string song)
         {
             InitializeComponent();
+
             difficulty = selectedDifficulty;
+            musicPath = song;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             ApplyDifficulty(difficulty);
             DrawLanes();
-
+            if (!string.IsNullOrEmpty(musicPath))
+            {
+                player.Open(new Uri(musicPath, UriKind.Relative));
+                player.Play();
+            }
             // ── CompositionTarget.Rendering pour la boucle de jeu (inchangé) ──
             CompositionTarget.Rendering += GameLoop;
 

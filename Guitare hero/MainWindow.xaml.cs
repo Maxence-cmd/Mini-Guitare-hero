@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Numerics;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -17,6 +18,8 @@ namespace Guitare_hero
     /// </summary>
     public partial class MainWindow : Window
     {
+        private MediaPlayer player = new MediaPlayer();
+        private string selectedSong = "";
         public MainWindow()
         {
             InitializeComponent();
@@ -39,9 +42,17 @@ namespace Guitare_hero
 
         private void OpenGame(string difficulty)
         {
-            GameWindow game = new GameWindow(difficulty);
+            GameWindow game = new GameWindow(difficulty, selectedSong);
             game.Show();
             Close();
+        }
+        private void PlaySong(string path)
+        {
+            selectedSong = path;
+
+            player.Stop();
+            player.Open(new Uri(path, UriKind.Relative));
+            player.Play();
         }
 
         private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
@@ -57,10 +68,25 @@ namespace Guitare_hero
         }
 
         // Sélection des musiques
-        private void Song1_Click(object sender, MouseButtonEventArgs e) { /* Ta logique */ }
-        private void Song2_Click(object sender, MouseButtonEventArgs e) { /* Ta logique */ }
-        private void Song3_Click(object sender, MouseButtonEventArgs e) { /* Ta logique */ }
-        private void Song4_Click(object sender, MouseButtonEventArgs e) { /* Ta logique */ }
+        private void Song1_Click(object sender, MouseButtonEventArgs e)
+        {
+            selectedSong = "Son/alexgrohl-motivation-sport-rock-trailer-478796.mp3";
+        }
+
+        private void Song2_Click(object sender, MouseButtonEventArgs e)
+        {
+            selectedSong = "Son/fassounds-escape-your-love-upbeat-fashion-pop-dance-412230.mp3";
+        }
+
+        private void Song3_Click(object sender, MouseButtonEventArgs e)
+        {
+            selectedSong = "Son/nastelbom-rock-501708.mp3";
+        }
+
+        private void Song4_Click(object sender, MouseButtonEventArgs e)
+        {
+            selectedSong = "Son/paulyudin-rock-490391.mp3";
+        }
 
         // Niveau Expert (en plus de Easy/Medium/Hard déjà existants)
         private void Expert_Click(object sender, RoutedEventArgs e) { /* Ta logique */ }
